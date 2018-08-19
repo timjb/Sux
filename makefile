@@ -1,11 +1,11 @@
 version=0.9.2
 
 opt:
-	make all CPPFLAGS="-DNDEBUG -std=c++11 -msse4.2 -funroll-loops -O3"
+	make all CPPFLAGS="-DNDEBUG -std=c++11 -msse4.2 -mbmi2 -funroll-loops -O3"
 
 assert:
 	make all CPPFLAGS="-std=c++11 -O3"
-	
+
 debug:
 	make all CPPFLAGS="-g -std=c++11 -DDEBUG"
 
@@ -32,7 +32,7 @@ ext:
 	cd kim; g++ -m32 -O3 sucBV_unitTest.cpp -o testkim; mv testkim ..; cd ..
 	cd sadakane; gcc -m32 -O3 -DNDEBUG select2.c -o select2; gcc -m32 -O3 -DNDEBUG selectd.c -o selectd; mv select2 selectd ..; cd ..
 
-source: 
+source:
 	-rm -fr sux-$(version)
 	ln -s . sux-$(version)
 	./genz.sh

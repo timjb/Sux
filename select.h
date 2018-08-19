@@ -1,7 +1,7 @@
-/*		 
+/*
  * Sux: Succinct data structures
  *
- * Copyright (C) 2007-2013 Sebastiano Vigna 
+ * Copyright (C) 2007-2013 Sebastiano Vigna
  *
  *  This library is free software; you can redistribute it and/or modify it
  *  under the terms of the GNU Lesser General Public License as published by the Free
@@ -22,6 +22,9 @@
 #define select_h
 #include <stdint.h>
 #include "macros.h"
+#if __BMI2__
+#include <immintrin.h>
+#endif
 
 
 const unsigned char select_in_byte[2048] = {
@@ -150,6 +153,9 @@ const uint64_t overflow[] = {
 // A slightly faster version of Gog & Petri's select.
 
 __inline int select_in_word( const uint64_t x, const int k ) {
+	#ifdef __BMI2__
+	return __builtin_ctzll(_pdep_u64(1ull << k, x));
+	#else
 	// Phase 1: sums by byte
 	uint64_t byte_sums = x - ( x >> 1 & 0x5ULL * ONES_STEP_4 );
 	byte_sums = ( byte_sums & 3ULL * ONES_STEP_4 ) + ( ( byte_sums >> 2 ) & 3ULL * ONES_STEP_4 );
@@ -163,5 +169,7 @@ __inline int select_in_word( const uint64_t x, const int k ) {
 
 	// Phase 3: Locate the relevant byte and look up the result in select_in_byte
 	return place + select_in_byte[ x >> place & 0xFFULL | k - ( ( byte_sums << 8 ) >> place & 0xFFULL ) << 8 ];
+	#endif
 }
+
 #endif
